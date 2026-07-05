@@ -45,6 +45,25 @@ To optimize latency responsiveness:
 - The system intercepts raw token packets (`AIMessageChunk`) as they are produced by the LLM.
 - The UI displays these tokens dynamically to the user in real-time, bypassing block-by-block node compilation delays.
 
+```mermaid
+sequenceDiagram
+    participant User as User / Browser
+    participant ST as Streamlit Backend
+    participant LG as LangGraph Executor
+    participant Gemini as Gemini API (SSE Stream)
+
+    User->>ST: Submits prompt
+    ST->>LG: Invokes graph.stream(stream_mode="messages")
+    LG->>Gemini: POST request with stream=True (Server-Sent Events)
+    loop SSE Token Streaming
+        Gemini-->>LG: SSE Chunk (AIMessageChunk)
+        LG-->>ST: Yields chunk tuple (message, metadata)
+        ST-->>User: Renders character/word to st.empty() placeholder
+    end
+    LG->>ST: Stream finished
+    ST->>User: Completes Markdown render & updates Session History
+```
+
 ---
 
 ## Getting Started
