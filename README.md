@@ -1,90 +1,100 @@
 # Research Assistant
 
-An autonomous academic AI Research Assistant that can search papers on a given topic at arxiv.org, read papers in depth using custom PDF tools, perform comprehensive research, and compile/render a ready-to-publish research paper PDF.
+An autonomous academic research assistant that searches arXiv, reads papers, synthesizes findings, and renders a publication-style PDF. This project is designed to show stateful agent orchestration rather than a basic chatbot wrapper.
 
-## System Architecture
+**Status:** Active prototype  
+**Stack:** Python, Streamlit, LangGraph, Gemini, custom PDF tools, Tectonic  
+**Focus:** Research workflow automation, streaming UX, tool-driven agents
 
-### Deciding Factors and Core Components
+## Why this project
 
-1. **Gemini 2.5 Flash**
-   - **Why it was chosen**: Selected for its low latency, high context window (up to 1 million tokens), and optimized cost-efficiency. It handles structured output generation and tool schemas cleanly.
+Literature review is usually fragmented across search, reading, note-taking, and writing. This repo brings those stages into one pipeline so the user can move from a research question to a drafted paper without manually stitching together multiple tools.
 
-2. **LangGraph Orchestrator**
-   - **Why it was chosen**: Standard stateless ReAct agents lose context across multiple turns. LangGraph provides state management, checkpointing, and conditional state routing, allowing the assistant to maintain a memory of the user's instructions across research phases.
+## Core capabilities
 
-3. **Streamlit UI**
-   - **Why it was chosen**: Allows fast, single-process Python dashboard deployment. By injecting custom CSS, it functions as a lightweight state engine and frontend without the overhead of node/js setups.
+- Search academic papers on arXiv.
+- Read and summarize papers with custom PDF tooling.
+- Maintain multi-step research state with LangGraph.
+- Stream reasoning progress in the UI.
+- Compile a polished PDF output through Tectonic.
 
-4. **Tectonic TeX Engine**
-   - **Why it was chosen**: A modern, self-configuring LaTeX engine that dynamically downloads missing TeX packages as needed. This eliminates the requirement to pre-install multi-gigabyte MacTeX/MikTeX environments.
+## Architecture list
 
----
+1. Input and orchestration layer
+   a. Streamlit interface for prompts and streaming output  
+   b. LangGraph state machine for tool routing and memory
+2. Research tooling layer
+   a. arXiv search tool for retrieval  
+   b. PDF read/write utilities for paper analysis and report generation
+3. Model layer
+   a. Gemini 2.5 Flash for structured generation and agent decisions  
+   b. Token streaming back to the UI
+4. Output layer
+   a. Research synthesis in markdown-like intermediate form  
+   b. Tectonic PDF rendering for final paper output
 
-## Agentic Flow and Streaming Architecture
-
-The flow of messages and state updates is divided into two primary modes:
-
-### 1. Agent Modes
-
-#### Simple Mode (ReAct Loop)
-A basic loop designed for rapid queries.
-- **Workflow**: User Prompt -> LLM -> Tool Call (arXiv Search, PDF Read, or TeX Compile) -> Tool Execution -> Final LLM Answer.
-- **Characteristics**: Fast, single-turn, stateless execution.
-
-#### Advanced Mode (StateGraph with Memory)
-A stateful workflow managing memory checkpoints.
-- **Workflow**: 
-  - The model decides whether tool invocation is required.
-  - If yes, routes to the `tools` execution node, updates state, and loops back to the model.
-  - If no, routes to `END` and compiles the response.
-- **Characteristics**: Supports cross-turn conversation history using `MemorySaver` checkpoints keyed by a session `thread_id`.
-
-### 2. Streaming Mechanism
-To optimize latency responsiveness:
-- The UI triggers `graph.stream(..., stream_mode="messages")`.
-- The system intercepts raw token packets (`AIMessageChunk`) as they are produced by the LLM.
-- The UI displays these tokens dynamically to the user in real-time, bypassing block-by-block node compilation delays.
+## Implementation diagram
 
 ```mermaid
-sequenceDiagram
-    participant User as User / Browser
-    participant ST as Streamlit Backend
-    participant LG as LangGraph Executor
-    participant Gemini as Gemini API (SSE Stream)
-
-    User->>ST: Submits prompt
-    ST->>LG: Invokes graph.stream(stream_mode="messages")
-    LG->>Gemini: POST request with stream=True (Server-Sent Events)
-    loop SSE Token Streaming
-        Gemini-->>LG: SSE Chunk (AIMessageChunk)
-        LG-->>ST: Yields chunk tuple (message, metadata)
-        ST-->>User: Renders character/word to st.empty() placeholder
-    end
-    LG->>ST: Stream finished
-    ST->>User: Completes Markdown render & updates Session History
+flowchart LR
+    User[Research Question] --> UI[Streamlit UI]
+    UI --> Graph[LangGraph Orchestrator]
+    Graph --> Search[arXiv Search Tool]
+    Graph --> Read[PDF Reading Tools]
+    Search --> Model[Gemini 2.5 Flash]
+    Read --> Model
+    Model --> Draft[Research Synthesis]
+    Draft --> PDF[Tectonic PDF Renderer]
+    PDF --> Output[Publication-style PDF]
+    Model --> Stream[Live Token Stream]
+    Stream --> UI
 ```
 
----
+## Project structure
 
-## Getting Started
+```text
+Research_Assist/
+├── frontend.py         # Streamlit UI
+├── ai_researcher.py    # Core agent flow
+├── ai_researcher_2.py  # Alternate / iterative agent logic
+├── arxiv_tool.py       # arXiv search helper
+├── read_pdf.py         # PDF reading utilities
+├── write_pdf.py        # PDF writing / rendering helpers
+├── pyproject.toml
+└── README.md
+```
 
-1. **Install Dependencies**:
-   This project uses `uv` for package management.
-   ```bash
-   uv sync
-   ```
+## Why LangGraph here
 
-2. **Set up Environment**:
-   Create a `.env` file in the root directory and add your Google Gemini API key:
-   ```env
-   GOOGLE_API_KEY=your-api-key-here
-   ```
+- A stateless chat loop is weak for long research tasks.
+- Research requires memory checkpoints across multiple tool invocations.
+- The system benefits from explicit routing between search, reading, synthesis, and document output.
 
-3. **Install Tectonic**:
-   Ensure `tectonic` is on your PATH or place a compiled `tectonic.exe` in the root folder.
+## Local setup
 
-4. **Launch the UI**:
-   Run the Streamlit app:
-   ```bash
-   uv run streamlit run frontend.py --browser.gatherUsageStats false
-   ```
+```bash
+uv sync
+uv run streamlit run frontend.py --browser.gatherUsageStats false
+```
+
+Create a `.env` file before running:
+
+```env
+GOOGLE_API_KEY=your-api-key-here
+```
+
+Ensure `tectonic` is installed or available on your `PATH` for PDF rendering.
+
+## What this demonstrates
+
+- Stateful agent design instead of one-shot prompting
+- Custom tool integration for academic workflows
+- Streaming-first interface behavior
+- End-to-end output generation, not just answer generation
+
+## Next improvements
+
+- Stronger citation validation and bibliography formatting
+- Better paper-ranking heuristics
+- Persistent project workspaces for long-running research sessions
+- More explicit evaluation of generated report quality
