@@ -104,16 +104,15 @@ Ensure `tectonic` is installed or available on your `PATH` for PDF rendering.
 <details>
 <summary>📄 Click to view sample outputs</summary>
 
-- [📑 Chatlog PDF](assets/Chatlog%20PDF.pdf) — Example research conversation log
-- [📝 Generated LaTeX Paper](assets/LLM%20generated%20tex%20of%20the%20Research%20Paper.tex) — LLM-generated research paper in .tex format
+- [📑 Chatlog PDF (Google Drive)](https://drive.google.com/file/d/1A7QJFqlYhirLjstQNxudxEKm3ctRrP3N/view) — Example research conversation log
+- [📝 Generated LaTeX Paper (Google Drive)](https://drive.google.com/file/d/1SMJxNtms6KqPTcxRf1M66XnWhjBwjIcM/view) — LLM-generated research paper in .tex format
 
 </details>
 
 <details>
 <summary>🎥 Click to view demo video</summary>
 
-<video src="https://raw.githubusercontent.com/Areshi001/Research_Assist/main/assets/Research_Assist-Demo_Vid.mp4" controls width="100%"></video>
-*Research Assistant in action — arXiv search, synthesis, and PDF generation*
+▶️ [**Watch Demo on Google Drive**](https://drive.google.com/file/d/1L42VBU7ztQ4v4UqrZ77v4-yCAPboloG4/view)
 
 </details>
 
