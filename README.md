@@ -92,6 +92,22 @@ Ensure `tectonic` is installed or available on your `PATH` for PDF rendering.
 - Streaming-first interface behavior
 - End-to-end output generation, not just answer generation
 
+## Demo / Screenshots
+
+![Research Assistant - Interface](assets/Capture.PNG)
+
+### 📄 Sample Outputs
+
+- [📑 Chatlog PDF](assets/Chatlog%20PDF.pdf) — Example research conversation log
+- [📝 Generated LaTeX Paper](assets/LLM%20generated%20tex%20of%20the%20Research%20Paper.tex) — LLM-generated research paper in .tex format
+
+### 🎥 Demo Video
+
+<video src="assets/Research_Assist-Demo_Vid.mp4" controls width="100%"></video>
+*Research Assistant in action — arXiv search, synthesis, and PDF generation*
+
+---
+
 ## Next improvements
 
 - Stronger citation validation and bibliography formatting

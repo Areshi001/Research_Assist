@@ -21,3 +21,7 @@ output/
 *.pdf
 *.tex
 tectonic.exe
+
+# But allow assets (screenshots, demo files) to be tracked
+!assets/*.pdf
+!assets/*.tex
